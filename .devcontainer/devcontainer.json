@@ -9,11 +9,12 @@
 	"customizations": {
 		"vscode": {
 		  // Spell checker extension
-		  "extensions": ["ms-python.python","streetsidesoftware.code-spell-checker"]
+		  "extensions": ["ms-python.python"]
 		}
-	},			
+	},
+	"containerEnv": {"PYTHONPATH": "/workspaces/multi-agent-langgraph-experiments"},			
 	
-	"postCreateCommand": "pip3 install -r requirements.txt",
+	"postCreateCommand": "apt-get install python3-dev graphviz libgraphviz-dev pkg-config | pip3 install -r requirements.txt",
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	"forwardPorts": [8000,8080],
