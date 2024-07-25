@@ -1,41 +1,128 @@
-```yaml
 openapi: 3.1.0
 info:
-  title: Bowling Game API
-  description: API for managing bowling game frames and audits
+  title: Bowling Game Management API
+  description: |
+    API for managing bowling games and related audits based on the given Oracle tables.
   version: 1.0.0
+  contact:
+    name: API Support
+    url: https://www.example.com/support
+    email: support@example.com
 servers:
-  - url: https://api.bowling.com/v1
+  - url: http://localhost/api/v1
 paths:
-  /frames:
+  '/games':
     get:
-      summary: Get all frames
+      summary: Get all games with optional bowler filter
+      description: Retrieve an array of Game objects based on the provided parameters.
+      operationId: getAllGames
+      tags:
+        - Bowling Game
       parameters:
         - name: bowlerId
           in: query
-          description: Bowler ID to filter by
           required: false
           schema:
             type: integer
-            format: int32
-        - name: gameId
-          in: query
-          description: Game ID to filter by
-          required: false
-          schema:
-            type: integer
-            format: int32
+            minimum: 1
+          description: Optional filter for a specific bowler.
       responses:
         '200':
-          description: A list of frames
+          description: An array of Game objects.
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Frame'
+                  $ref: '#/components/schemas/Game'
+
+  '/games/{gameId}':
+    get:
+      summary: Get game details by ID
+      description: Retrieve a single Game object based on the provided game ID.
+      operationId: getGameById
+      tags:
+        - Bowling Game
+      parameters:
+        - name: gameId
+          in: path
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+          description: The ID of the game.
+      responses:
+        '200':
+          description: A single Game object.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Game'
+
+    put:
+      summary: Update an existing game completely.
+      description: Replace the Game object with the provided data for the specified game ID.
+      operationId: replaceGame
+      tags:
+        - Bowling Game
+      parameters:
+        - name: gameId
+          in: path
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+          description: The ID of the game to update.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Game'
+      responses:
+        '200':
+          description: OK
+
+    delete:
+      summary: Delete the specified game.
+      description: Remove the Game object for the specified game ID.
+      operationId: deleteGame
+      tags:
+        - Bowling Game
+      parameters:
+        - name: gameId
+          in: path
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+          description: The ID of the game to delete.
+      responses:
+        '204':
+          description: No Content
+
+  '/games/{gameId}/frames':
     post:
-      summary: Add a new frame
+      summary: Create a new frame in the specified game
+      description: Create a new Frame object with the provided data for the specified bowler and game.
+      operationId: createFrame
+      tags:
+        - Bowling Game
+      parameters:
+        - name: gameId
+          in: path
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+          description: The ID of the game.
+        - name: bowlerId
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+          description: Optional filter for a specific bowler.
       requestBody:
         required: true
         content:
@@ -44,124 +131,200 @@ paths:
               $ref: '#/components/schemas/Frame'
       responses:
         '201':
-          description: Frame created successfully
-  /frame-audits:
-    get:
-      summary: Get all frame audits
+          description: Created
+
+  '/games/{gameId}/frames/{frameNumber}':
+    put:
+      summary: Update an existing frame completely.
+      description: Replace the Frame object with the provided data for the specified game and frame number.
+      operationId: replaceFrame
+      tags:
+        - Bowling Game
       parameters:
-        - name: bowlerId
-          in: query
-          description: Bowler ID to filter by
-          required: false
-          schema:
-            type: integer
-            format: int32
         - name: gameId
-          in: query
-          description: Game ID to filter by
-          required: false
+          in: path
+          required: true
           schema:
             type: integer
-            format: int32
+            minimum: 1
+          description: The ID of the game.
+        - name: frameNumber
+          in: path
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 10
+          description: The number of the frame to update.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Frame'
       responses:
         '200':
-          description: A list of frame audits
+          description: OK
+
+    patch:
+      summary: Partially update specific fields of a frame.
+      description: Update one or more fields of the Frame object for the specified game and frame number with the provided data.
+      operationId: patchFrame
+      tags:
+        - Bowling Game
+      parameters:
+        - name: gameId
+          in: path
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+          description: The ID of the game.
+        - name: frameNumber
+          in: path
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 10
+          description: The number of the frame to update.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Frame'
+      responses:
+        '200':
+          description: OK
+
+    delete:
+      summary: Delete the specified frame.
+      description: Remove the Frame object for the specified game and frame number.
+      operationId: deleteFrame
+      tags:
+        - Bowling Game
+      parameters:
+        - name: gameId
+          in: path
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+          description: The ID of the game.
+        - name: frameNumber
+          in: path
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 10
+          description: The number of the frame to delete.
+      responses:
+        '204':
+          description: No Content
+
+  '/games/{gameId}/frames/{frameNumber}/audit':
+    get:
+      summary: Get audit records for a specific frame
+      description: Retrieve an array of FrameAudit objects based on the provided parameters.
+      operationId: getFrameAuditsByGameAndFrameNumber
+      tags:
+        - Bowling Game Audit
+      parameters:
+        - name: gameId
+          in: path
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+          description: The ID of the game.
+        - name: frameNumber
+          in: path
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 10
+          description: The number of the frame to retrieve audits for.
+        - name: startDate
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+          description: Optional filter for audit records starting from this date (inclusive).
+        - name: endDate
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+          description: Optional filter for audit records up to and including this date.
+      responses:
+        '200':
+          description: An array of FrameAudit objects.
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/FrameAudit'
-    post:
-      summary: Add a new frame audit
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/FrameAudit'
-      responses:
-        '201':
-          description: Frame audit created successfully
+
+security:
+  - api_key: []
+
 components:
+  securitySchemes:
+    api_key:
+      type: apiKey
+      name: X-API-Key
+      in: header
+
   schemas:
-    BaseSchema:
+    Game:
       type: object
       properties:
+        id:
+          type: integer
+          minimum: 1
         bowlerId:
           type: integer
-          format: int32
-        gameId:
-          type: integer
-          format: int32
-        frameNumber:
-          type: integer
-          format: int32
           minimum: 1
-          maximum: 10
-    StrikeSpareSchema:
-      allOf:
-        - $ref: '#/components/schemas/BaseSchema'
+    Frame:
+      type: object
       properties:
         strike:
           type: string
-          enum: ['N', 'Y']
+          maxLength: 1
         spare:
           type: string
-          enum: ['N', 'Y']
+          maxLength: 1
         score:
           type: integer
-          format: int32
-    Frame:
-      allOf:
-        - $ref: '#/components/schemas/StrikeSpareSchema'
+          minimum: 0
+          maximum: 300
       required:
-        - bowlerId
-        - gameId
-        - frameNumber
         - score
-    AuditFieldsSchema:
-      properties:
-        oldStrike:
-          type: string
-          enum: ['N', 'Y']
-        newStrike:
-          type: string
-          enum: ['N', 'Y']
-        oldSpare:
-          type: string
-          enum: ['N', 'Y']
-        newSpare:
-          type: string
-          enum: ['N', 'Y']
-        oldScore:
-          type: integer
-          format: int32
-        newScore:
-          type: integer
-          format: int32
     FrameAudit:
-      allOf:
-        - $ref: '#/components/schemas/BaseSchema'
-        - $ref: '#/components/schemas/AuditFieldsSchema'
+      type: object
       properties:
-        changeDate:
+        action:
+          type: string
+          enum: ["CREATE", "UPDATE", "DELETE"]
+        timestamp:
           type: string
           format: date-time
-        operation:
+        user:
           type: string
-          enum: ['INSERT', 'UPDATE', 'DELETE']
-      required:
-        - bowlerId
-        - gameId
-        - frameNumber
-        - changeDate
-        - operation
-  securitySchemes:
-    bearerAuth:
-      type: http
-      scheme: bearer
-security:
-  - bearerAuth: []
-```
----
+          maxLength: 100
+        oldValue:
+          $ref: '#/components/schemas/Frame'
+        newValue:
+          $ref: '#/components/schemas/Frame'
+
+tags:
+  - name: Bowling Game
+    description: Operations on bowling games and frames.
+  - name: Bowling Game Audit
+    description: Operations on auditing changes to bowling game frames.

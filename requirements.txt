@@ -4,6 +4,8 @@ langgraph
 langchain_core
 langchain_openai
 langchain-ollama
+langchain-experimental
 tavily-python
 python-dotenv
 pygraphviz
+mdextractor

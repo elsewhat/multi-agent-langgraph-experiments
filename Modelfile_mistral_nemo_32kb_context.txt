@@ -1,0 +1,3 @@
+# Import via: ollama create mistral-nemo-32kb:12b-instruct-2407-q8_0 -f Modelfile_mistral_nemo_64kb_context.txt
+FROM mistral-nemo:12b-instruct-2407-q8_0
+PARAMETER num_ctx 32768
