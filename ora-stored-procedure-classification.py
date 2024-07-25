@@ -2,6 +2,11 @@
 #Load .env with OPENAI_API_KEY
 from dotenv import load_dotenv
 load_dotenv()
+from langchain_ollama import ChatOllama
+import os
+
+#from langchain.globals import set_debug
+#set_debug(True)
 
 from langchain_core.utils.function_calling import convert_to_openai_function
 from langchain.prompts import ChatPromptTemplate
@@ -12,14 +17,30 @@ from pydantic import BaseModel, Field
 from mdextractor import extract_md_blocks
 
 #From https://github.com/langchain-ai/langchain/issues/21479#issuecomment-2105618237
-model = ChatOpenAI(
-    api_key="ollama",
-    model="llama3.1:8b-instruct-q8_0",
-    #model="mistral-nemo-32kb:12b-instruct-2407-q8_0",
-    base_url="http://host.docker.internal:11434/v1",
-)
+#model = ChatOllama(
+#   api_key="ollama",
+#   model="llama3.1:8b-instruct-q8_0",
+   #model="mistral-nemo-32kb:12b-instruct-2407-q8_0",
+   #host="host.docker.internal:11434",
+#)
+# model = ChatOpenAI(
+#    api_key="ollama",
+#    model="llama3.1:8b-instruct-q8_0",
+#    #model="mistral-nemo-32kb:12b-instruct-2407-q8_0",
+#    base_url="http://host.docker.internal:11434/v1",
+# )
 
 #model = ChatOpenAI(model="gpt-4o-mini") 
+# See https://python.langchain.com/v0.2/docs/integrations/chat/ollama_functions/
+from langchain_experimental.llms.ollama_functions import OllamaFunctions
+
+model = OllamaFunctions(
+   api_key="ollama",
+   model="llama3.1:8b-instruct-q8_0",
+#    #model="mistral-nemo-32kb:12b-instruct-2407-q8_0",
+   base_url="http://host.docker.internal:11434",
+)
+
 
 
 class OraclePLSQLStoredProcedureClassification(BaseModel):
@@ -116,3 +137,5 @@ END;
 result = tagging_chain.invoke({"oracle_plsql_storedprocedure": ORA_STORED_PROCEDURE_DEFINITION})
 
 print(result)
+#Actual output
+# content='' id='run-02e35817-8d21-430b-a2b4-0c564490bff9-0' tool_calls=[{'name': 'OraclePLSQLStoredProcedureClassification', 'args': {'createsData': False, 'selectsData': True, 'updatesData': True, 'deletesData': False, 'tables': 'employees, departments'}, 'id': 'call_9d490bb24d4d45d497f4f2f4be68952b', 'type': 'tool_call'}]
