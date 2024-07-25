@@ -1,0 +1,167 @@
+```yaml
+openapi: 3.1.0
+info:
+  title: Bowling Game API
+  description: API for managing bowling game frames and audits
+  version: 1.0.0
+servers:
+  - url: https://api.bowling.com/v1
+paths:
+  /frames:
+    get:
+      summary: Get all frames
+      parameters:
+        - name: bowlerId
+          in: query
+          description: Bowler ID to filter by
+          required: false
+          schema:
+            type: integer
+            format: int32
+        - name: gameId
+          in: query
+          description: Game ID to filter by
+          required: false
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: A list of frames
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Frame'
+    post:
+      summary: Add a new frame
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Frame'
+      responses:
+        '201':
+          description: Frame created successfully
+  /frame-audits:
+    get:
+      summary: Get all frame audits
+      parameters:
+        - name: bowlerId
+          in: query
+          description: Bowler ID to filter by
+          required: false
+          schema:
+            type: integer
+            format: int32
+        - name: gameId
+          in: query
+          description: Game ID to filter by
+          required: false
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: A list of frame audits
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FrameAudit'
+    post:
+      summary: Add a new frame audit
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FrameAudit'
+      responses:
+        '201':
+          description: Frame audit created successfully
+components:
+  schemas:
+    BaseSchema:
+      type: object
+      properties:
+        bowlerId:
+          type: integer
+          format: int32
+        gameId:
+          type: integer
+          format: int32
+        frameNumber:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 10
+    StrikeSpareSchema:
+      allOf:
+        - $ref: '#/components/schemas/BaseSchema'
+      properties:
+        strike:
+          type: string
+          enum: ['N', 'Y']
+        spare:
+          type: string
+          enum: ['N', 'Y']
+        score:
+          type: integer
+          format: int32
+    Frame:
+      allOf:
+        - $ref: '#/components/schemas/StrikeSpareSchema'
+      required:
+        - bowlerId
+        - gameId
+        - frameNumber
+        - score
+    AuditFieldsSchema:
+      properties:
+        oldStrike:
+          type: string
+          enum: ['N', 'Y']
+        newStrike:
+          type: string
+          enum: ['N', 'Y']
+        oldSpare:
+          type: string
+          enum: ['N', 'Y']
+        newSpare:
+          type: string
+          enum: ['N', 'Y']
+        oldScore:
+          type: integer
+          format: int32
+        newScore:
+          type: integer
+          format: int32
+    FrameAudit:
+      allOf:
+        - $ref: '#/components/schemas/BaseSchema'
+        - $ref: '#/components/schemas/AuditFieldsSchema'
+      properties:
+        changeDate:
+          type: string
+          format: date-time
+        operation:
+          type: string
+          enum: ['INSERT', 'UPDATE', 'DELETE']
+      required:
+        - bowlerId
+        - gameId
+        - frameNumber
+        - changeDate
+        - operation
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+security:
+  - bearerAuth: []
+```
+---
