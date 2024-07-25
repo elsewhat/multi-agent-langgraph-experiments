@@ -3,6 +3,7 @@ langchain_community
 langgraph
 langchain_core
 langchain_openai
+langchain-ollama
 tavily-python
 python-dotenv
 pygraphviz

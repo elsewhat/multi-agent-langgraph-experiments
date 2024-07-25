@@ -14,7 +14,7 @@
 	},
 	"containerEnv": {"PYTHONPATH": "/workspaces/multi-agent-langgraph-experiments"},			
 	
-	"postCreateCommand": "apt-get install python3-dev graphviz libgraphviz-dev pkg-config | pip3 install -r requirements.txt",
+	"postCreateCommand": "apt-get update && apt-get -y install python3-dev graphviz libgraphviz-dev pkg-config && pip3 install -r requirements.txt",
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	"forwardPorts": [8000,8080],
