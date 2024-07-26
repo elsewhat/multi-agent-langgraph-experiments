@@ -9,3 +9,4 @@ tavily-python
 python-dotenv
 pygraphviz
 mdextractor
+langfuse
